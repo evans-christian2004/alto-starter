@@ -48,15 +48,15 @@ function BackendLoadingScreen() {
       <div className="w-full max-w-2xl z-10 bg-neutral-900/50 backdrop-blur-md p-8 rounded-2xl border border-neutral-700 shadow-2xl shadow-black/60">
         <div className="text-center space-y-6">
           <h1 className="text-4xl font-bold text-white flex items-center justify-center gap-3">
-            ✨ AI Goal Planning Assistant 🚀
+            Alto AI Loading...
           </h1>
 
           <div className="flex flex-col items-center space-y-4">
             {/* Spinning animation */}
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-neutral-600 border-t-blue-500 rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-neutral-600 border-t-sky-500 rounded-full animate-spin"></div>
               <div
-                className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-500 rounded-full animate-spin"
+                className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-blue-500 rounded-full animate-spin"
                 style={{
                   animationDirection: "reverse",
                   animationDuration: "1.5s",
@@ -72,19 +72,18 @@ function BackendLoadingScreen() {
                 This may take a moment on first startup
               </p>
             </div>
-
             {/* Animated dots */}
             <div className="flex space-x-1">
               <div
-                className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-sky-500 rounded-full animate-bounce"
                 style={{ animationDelay: "0ms" }}
               ></div>
               <div
-                className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-sky-300 rounded-full animate-bounce"
                 style={{ animationDelay: "150ms" }}
               ></div>
               <div
-                className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+                className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
                 style={{ animationDelay: "300ms" }}
               ></div>
             </div>

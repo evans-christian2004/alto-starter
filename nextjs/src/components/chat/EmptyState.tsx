@@ -15,16 +15,13 @@ export function EmptyState(): React.JSX.Element {
           <p className="text-neutral-400">Try asking about:</p>
           <div className="flex flex-wrap gap-2 justify-center">
             <span className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm">
-              Goal setting strategies
+              Your Finances
             </span>
             <span className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm">
-              Project planning methods
+              Moving Purchases
             </span>
             <span className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm">
-              Task prioritization
-            </span>
-            <span className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm">
-              Achievement milestones
+              Account Insights
             </span>
           </div>
         </div>

@@ -43,8 +43,8 @@ export function InputForm({
 
   const placeholderText =
     context === "chat"
-      ? "Add more details, ask questions, or request changes..."
-      : "What goal would you like to achieve? e.g., Build a mobile app, Plan a marketing campaign, Learn a new skill...";
+      ? "Make changes to your calendar or ask about your finances..."
+      : "What do you want to do? Analyze spending, plan a purchase, or set a financial goal...";
 
   return (
     <div className="w-full">
