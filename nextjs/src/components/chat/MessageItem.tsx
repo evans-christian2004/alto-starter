@@ -113,7 +113,7 @@ export function MessageItem({
   if (isLoading && hasTimelineEvents) {
     return (
       <div className="flex items-start gap-3 max-w-[90%]">
-        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md border border-emerald-400/30">
+        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center shadow-md border border-cyan-400/30">
           <Bot className="h-4 w-4 text-white" />
         </div>
 
@@ -135,7 +135,7 @@ export function MessageItem({
 
           {/* Loading indicator */}
           <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2">
-            <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
             <span className="text-sm text-slate-400">
               {message.content
                 ? "🚀 Still processing..."
@@ -153,7 +153,7 @@ export function MessageItem({
     if (hasTimelineEvents) {
       return (
         <div className="flex items-start gap-3 max-w-[90%]">
-          <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md border border-emerald-400/30">
+          <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center shadow-md border border-cyan-400/30">
             <Bot className="h-4 w-4 text-white" />
           </div>
 
@@ -175,7 +175,7 @@ export function MessageItem({
     // Otherwise show no content indicator
     return (
       <div className="flex items-start gap-3 max-w-[90%]">
-        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md border border-emerald-400/30">
+        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center shadow-md border border-cyan-400/30">
           <Bot className="h-4 w-4 text-white" />
         </div>
         <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2">
@@ -188,7 +188,7 @@ export function MessageItem({
   // Regular AI message display with content
   return (
     <div className="flex items-start gap-3 max-w-[90%]">
-      <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md border border-emerald-400/30">
+      <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full flex items-center justify-center shadow-md border border-cyan-400/30">
         <Bot className="h-4 w-4 text-white" />
       </div>
 
@@ -214,7 +214,7 @@ export function MessageItem({
             title="Copy message"
           >
             {copiedMessageId === message.id ? (
-              <CopyCheck className="h-4 w-4 text-emerald-400" />
+              <CopyCheck className="h-4 w-4 text-cyan-400" />
             ) : (
               <Copy className="h-4 w-4 text-slate-400 hover:text-slate-300" />
             )}

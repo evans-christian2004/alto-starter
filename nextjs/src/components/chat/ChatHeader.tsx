@@ -4,6 +4,7 @@ import { Bot } from "lucide-react";
 import { UserIdInput } from "@/components/chat/UserIdInput";
 import { SessionSelector } from "@/components/chat/SessionSelector";
 import { useChatContext } from "@/components/chat/ChatProvider";
+import Image from "next/image";
 
 /**
  * ChatHeader - User and session management interface
@@ -25,14 +26,8 @@ export function ChatHeader(): React.JSX.Element {
       <div className="max-w-5xl mx-auto w-full flex justify-between items-center p-4">
         {/* Left side - App branding */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-md">
-            <Bot className="h-4 w-4 text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold text-slate-100">
-              Goal Planning Assistant
-            </h1>
-            <p className="text-xs text-slate-400">Powered by Google Gemini</p>
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Image className="bg-slate-700 rounded-2xl p-1" src="/images/logo.svg" width={40} height={40} alt="alto logo"/>
           </div>
         </div>
 

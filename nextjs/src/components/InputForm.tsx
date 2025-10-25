@@ -54,7 +54,7 @@ export function InputForm({
           relative flex items-end gap-3 p-3 rounded-2xl border transition-all duration-200
           ${
             isFocused
-              ? "border-emerald-400/50 bg-slate-800/80 shadow-lg shadow-emerald-500/10"
+              ? "border-cyan-400/50 bg-slate-800/80 shadow-lg shadow-cyan-500/10"
               : "border-slate-700/50 bg-slate-800/50 hover:border-slate-600/50"
           }
           backdrop-blur-sm
@@ -101,7 +101,7 @@ export function InputForm({
             size="sm"
             disabled={!inputValue.trim() || isLoading}
             className="
-              h-9 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700
+              h-9 px-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
               text-white border-0 shadow-lg transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
               disabled:bg-slate-600 disabled:from-slate-600 disabled:to-slate-600

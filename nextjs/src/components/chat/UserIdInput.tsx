@@ -138,7 +138,7 @@ export function UserIdInput({
             onKeyDown={handleKeyPress}
             onBlur={handleInputBlur}
             placeholder="Enter user ID"
-            className={`w-32 text-xs bg-slate-800 text-slate-100 border-slate-600 focus:border-emerald-500 focus:ring-emerald-500/20 ${
+            className={`w-32 text-xs bg-slate-800 text-slate-100 border-slate-600 focus:border-cyan-500 focus:ring-cyan-500/20 ${
               !isValid ? "border-red-500" : ""
             }`}
             disabled={isLoading}
@@ -151,7 +151,7 @@ export function UserIdInput({
               isLoading ||
               (shouldShowValidation && !isValid)
             }
-            className="h-7 px-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="h-7 px-2 bg-cyan-600 hover:bg-cyan-700 text-white"
           >
             {isLoading ? (
               <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />

@@ -233,7 +233,7 @@ export function SessionSelector({
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400">Session:</span>
           <Select value={currentSessionId} onValueChange={handleSessionSelect}>
-            <SelectTrigger className="w-44 h-12 text-xs bg-slate-700/50 border-slate-600/50 text-slate-100 hover:bg-slate-600/50 focus:border-emerald-500 px-4 py-1">
+            <SelectTrigger className="w-44 h-12 text-xs bg-slate-700/50 border-slate-600/50 text-slate-100 hover:bg-slate-600/50 focus:border-cyan-500 px-4 py-1">
               <SelectValue
                 placeholder={
                   isLoadingSessions
@@ -301,11 +301,11 @@ export function SessionSelector({
                   >
                     <div className="flex items-center gap-2">
                       {isCreatingSession ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-emerald-400 flex-shrink-0" />
+                        <Loader2 className="w-4 h-4 animate-spin text-cyan-400 flex-shrink-0" />
                       ) : (
-                        <Plus className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <Plus className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                       )}
-                      <span className="text-emerald-400 font-medium">
+                      <span className="text-cyan-400 font-medium">
                         {isCreatingSession
                           ? "Creating..."
                           : "Create New Session"}
