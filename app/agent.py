@@ -5,6 +5,7 @@ from google.adk.agents import LlmAgent
 from google.adk.planners import BuiltInPlanner
 
 from app.config import config
+from app.tools import calendar_optimize_tool, explain_plan_tool
 
 # --- ROOT AGENT DEFINITION ---
 root_agent = LlmAgent(
@@ -14,6 +15,7 @@ root_agent = LlmAgent(
     planner=BuiltInPlanner(
         thinking_config=genai_types.ThinkingConfig(include_thoughts=True)
     ),
+    tools=[calendar_optimize_tool, explain_plan_tool],
     instruction=f"""
     You are Alto, a financial automation conductor. Ingest the user's cashflow snapshot and orchestrate
     purpose-built tools to protect their buffer, improve credit utilization, and explain the calendar plan.
