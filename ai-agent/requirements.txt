@@ -1,7 +1,0 @@
-google-generativeai
-firebase-admin
-google-cloud-firestore
-google-auth
-requests
-python-dotenv
-google-adk

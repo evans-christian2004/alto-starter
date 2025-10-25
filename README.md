@@ -1,105 +1,223 @@
-# google-adk-nextjs-starter
+# ADK Fullstack Deploy Tutorial
 
-This project provides a starter template for building AI-powered applications using Google's Agent Development Kit (ADK) for the backend and Next.js for the frontend.
+Production-ready fullstack template showing how to wire a Python ADK backend to a modern Next.js frontend with streaming responses, local development, and deployment paths to Vertex AI Agent Engine and Vercel.
+
+This repo contains:
+
+- Backend: Python app using Google ADK to run a goal-planning LLM agent
+- Frontend: Next.js app with a chat UI, activity timeline, and SSE streaming
+- Make targets and scripts to run locally and deploy
+
+## Quickstart
+
+Prerequisites:
+
+- Python 3.10–3.12
+- Node.js 18+ (recommended: LTS)
+- uv (installed automatically by Makefile if missing)
+- Google Cloud SDK for cloud deployment
+
+Setup and run locally (backend + frontend):
+
+```bash
+make install
+cp app/.env.example app/.env  # if present, otherwise see Backend env below
+make dev
+```
+
+By default the frontend runs at `http://localhost:3000` and proxies chat requests to the local ADK backend at `http://127.0.0.1:8000` via `nextjs/src/app/api/run_sse/route.ts`.
+
+## Features
+
+- Goal-planning LLM agent powered by Google ADK (`app/agent.py`)
+- Environment-driven routing to either local backend or Vertex AI Agent Engine
+- Robust SSE pipeline with JSON-fragment processing for Agent Engine
+- Chat UI with message list, streaming content, and activity timeline
+- Health checks and helpful error formatting
+
+## Tech Stack
+
+- Backend: Python, `google-adk`, `vertexai`, `python-dotenv`
+- Frontend: Next.js 15, React 19, TailwindCSS, shadcn/ui
+- Tooling: `uv` for Python deps, ESLint + Jest for the frontend, Ruff + Mypy for backend linting/type-checking
 
 ## Project Structure
 
-- `ai-agent/`: Contains the Python backend powered by Google ADK. This agent handles core AI logic, such as brainstorming, validation, and market research assistance.
-- `ai-agent-fe/`: Contains the Next.js frontend application. It provides the user interface, including a landing page and a chat interface to interact with the AI agent.
+```
+app/                       # Python ADK backend
+  agent.py                 # Root agent definition (goal-planning)
+  agent_engine_app.py      # Deployment helper for Vertex AI Agent Engine
+  config.py                # Env loading, Vertex init, deployment config
+  utils/                   # GCS + tracing helpers
 
-## Setup
+nextjs/                    # Next.js frontend
+  src/app/api/health       # Proxies health checks to backend
+  src/app/api/run_sse      # Streaming endpoint (local or Agent Engine)
+  src/lib/config.ts        # Env detection + endpoint resolution
+  src/lib/handlers/        # Streaming handlers (local/agent-engine)
+  src/components/chat/     # Chat UI and timeline components
 
-### Prerequisites
+Makefile                   # install/dev/lint + Agent Engine deploy helper
+pyproject.toml             # Python deps and linters
+```
 
-- Python (>= 3.9 recommended)
-- Node.js (>= 18 recommended) & pnpm
-- Google Cloud SDK (`gcloud`)
-- [ADK CLI](https://github.com/google/agent-development-kit) (`adk`)
+## Backend
 
-### Initial Setup
+### Agent
 
-1.  **Authenticate with Google Cloud:**
-    ```bash
-    gcloud auth login
-    gcloud auth application-default login
-    ```
-    *Optional: Set your quota project if needed.*
-    ```bash
-    # gcloud config set core/project YOUR_PROJECT_ID
-    # gcloud auth application-default set-quota-project YOUR_PROJECT_ID
-    ```
+`app/agent.py` defines an ADK `LlmAgent` with built-in planning enabled. It accepts a high-level goal and produces a structured plan and execution steps. The model defaults to `gemini-2.5-flash` and can be changed via env.
 
-2.  **Clone the repository (if you haven't already):**
-    ```bash
-    git clone <your-repo-url>
-    cd google-adk-nextjs-starter
-    ```
+### Environment
 
-### Backend Setup (`ai-agent`)
+Create `app/.env` with at least the following for local development and deployment:
 
-1.  **Navigate to the backend directory:**
-    ```bash
-    cd ai-agent
-    ```
+```bash
+# Required
+GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
 
-2.  **Create and activate a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate # On Windows use `venv\Scripts\activate`
-    ```
+# Staging bucket for Vertex AI/Agent Engine packaging
+# Provide a valid bucket identifier. Example: my-staging-bucket
+# (Do not include gs:// prefix.)
+GOOGLE_CLOUD_STAGING_BUCKET=my-staging-bucket
 
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Optional
+MODEL=gemini-2.5-flash
+AGENT_NAME=goal-planning-agent
+EXTRA_PACKAGES=./app
+REQUIREMENTS_FILE=.requirements.txt
+```
 
-4.  **Configure environment variables:**
-    - Copy `.env.example` to `.env`.
-    - Fill in the required values in the `.env` file.
+Notes:
 
-### Frontend Setup (`ai-agent-fe`)
+- Configuration is validated at import time in `app/config.py` and initializes Vertex AI.
+- The Makefile’s deploy target will generate `.requirements.txt` for Agent Engine using `uv export`.
 
-1.  **Navigate to the frontend directory:**
-    ```bash
-    cd ../ai-agent-fe # Or from the root: cd ai-agent-fe
-    ```
+### Run the backend (dev)
 
-2.  **Install dependencies:**
-    ```bash
-    pnpm install
-    ```
+The Makefile starts the ADK API server for you:
 
-3.  **Configure environment variables:**
-    - Copy `.env.example` to `.env.local`.
-    - Fill in the required values, especially the backend URL (`NEXT_PUBLIC_API_BASE_URL`). If running the backend locally with ADK, this is typically `http://127.0.0.1:8080`.
+```bash
+make dev-backend
+# or run both backend and frontend together
+make dev
+```
 
-## Running Locally
+This uses `uv run adk api_server app --allow_origins="*"` which serves the ADK HTTP API at `http://127.0.0.1:8000`.
 
-1.  **Run the Backend (`ai-agent`):**
-    - Make sure you are in the `ai-agent` directory with the virtual environment activated.
-    - Start the agent using the ADK CLI:
-      ```bash
-      adk run .
-      ```
-    - The backend API will usually be available at `http://127.0.0.1:8080`.
+## Frontend
 
-2.  **Run the Frontend (`ai-agent-fe`):**
-    - Open a new terminal window.
-    - Navigate to the `ai-agent-fe` directory.
-    - Start the Next.js development server:
-      ```bash
-      pnpm run dev
-      ```
-    - The frontend will usually be available at `http://localhost:3000`.
+### Environment
 
-## Deployment (Example: Google Cloud Run)
+Create `nextjs/.env.local`:
 
-Refer to the specific deployment scripts or documentation within each sub-project (`ai-agent/deploy-cloud-run.sh`, etc.) for detailed deployment instructions.
+Local backend (default):
 
-Generally, you will need to:
+```bash
+BACKEND_URL=http://127.0.0.1:8000
+NODE_ENV=development
+```
 
-- Build Docker images for the backend ai agent service.
-- Push the images to a container registry (e.g., Google Artifact Registry).
-- Deploy the images as Cloud Run services.
-- Configure necessary IAM permissions (like allowing the frontend service account to invoke the backend).
+Agent Engine (direct streaming):
 
+```bash
+AGENT_ENGINE_ENDPOINT=https://us-central1-aiplatform.googleapis.com/v1/projects/your-project/locations/us-central1/reasoningEngines/YOUR_ENGINE_ID
+
+# Required when calling Agent Engine directly (e.g. Vercel):
+# Base64-encoded service account JSON with permissions for Agent Engine
+GOOGLE_SERVICE_ACCOUNT_KEY_BASE64=eyJ0eXAiOiJKV1QiLCJh...  # base64 JSON
+
+NODE_ENV=production
+```
+
+Cloud Run (if you host your own proxy backend):
+
+```bash
+CLOUD_RUN_SERVICE_URL=https://your-service-url.a.run.app
+NODE_ENV=production
+```
+
+The frontend auto-detects the deployment mode in `nextjs/src/lib/config.ts` and will:
+
+- Use Agent Engine when `AGENT_ENGINE_ENDPOINT` is set
+- Use Cloud Run when `CLOUD_RUN_SERVICE_URL` (or Cloud env vars) are present
+- Default to local backend otherwise
+
+### Run the frontend (dev)
+
+```bash
+npm --prefix nextjs install
+npm --prefix nextjs run dev
+```
+
+Open `http://localhost:3000`.
+
+## Streaming Architecture
+
+- API route `nextjs/src/app/api/run_sse/route.ts` orchestrates streaming and delegates to:
+  - `run-sse-local-backend-handler.ts` for local ADK backend
+  - `run-sse-agent-engine-handler.ts` when using Agent Engine
+- For Agent Engine, JSON fragments are transformed into SSE format on the server so the UI can render incremental `text` and `thought` parts consistently.
+
+## Lint, Type-Check, and Tests
+
+Python (from repo root):
+
+```bash
+make lint
+```
+
+Node/TypeScript (from repo root):
+
+```bash
+npm --prefix nextjs run lint
+npm --prefix nextjs run test
+```
+
+Tip: Prefer linting and type-checking for fast feedback during development instead of full builds.
+
+## Deployments
+
+### Deploy the Agent to Vertex AI Agent Engine
+
+Prerequisites:
+
+- `gcloud auth application-default login`
+- `gcloud config set project YOUR_PROJECT_ID`
+- A GCS bucket for packaging (match `GOOGLE_CLOUD_STAGING_BUCKET` in `app/.env`)
+
+Deploy:
+
+```bash
+make deploy-adk
+```
+
+What it does:
+
+- Exports Python dependencies to `.requirements.txt` using uv
+- Packages and deploys the ADK app via `app/agent_engine_app.py`
+- Creates a logs/data bucket for artifacts if missing
+- Outputs deployment metadata to `logs/deployment_metadata.json`
+
+After deployment, set `AGENT_ENGINE_ENDPOINT` in `nextjs/.env.local` with the returned Reasoning Engine endpoint to stream from Agent Engine directly.
+
+### Deploy the Frontend (Vercel)
+
+Use `NEXTJS_VERCEL_DEPLOYMENT_GUIDE.md` for step-by-step instructions. In short:
+
+- Set environment variables in Vercel (at minimum `AGENT_ENGINE_ENDPOINT` and `GOOGLE_SERVICE_ACCOUNT_KEY_BASE64` if using Agent Engine)
+- Push your repo and import the `nextjs` app into Vercel
+
+## Health Checks
+
+`GET /api/health` on the frontend forwards to the backend health endpoint (`/health`). Configure backend URL/endpoint via env as described above.
+
+## Troubleshooting
+
+- Missing Google Cloud envs: `app/config.py` validates env on import. Ensure `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION`, and `GOOGLE_CLOUD_STAGING_BUCKET` are set in `app/.env`.
+- Authentication for Agent Engine from the frontend requires `GOOGLE_SERVICE_ACCOUNT_KEY_BASE64` with correct scopes.
+- Local streaming issues: verify `BACKEND_URL` in `nextjs/.env.local` and that `make dev-backend` is running.
+
+## License
+
+Apache-2.0 (unless noted otherwise in third-party files).
