@@ -176,6 +176,16 @@ npm --prefix nextjs run test
 
 Tip: Prefer linting and type-checking for fast feedback during development instead of full builds.
 
+## Agent Session API
+
+- `POST /agent/session` — runs the calendar optimizer and explainer pipeline. Automatically selects a
+  focus (`overdraft`, `utilization`, or `balanced`) based on the payload, returns the structured plan,
+  explanation bullets, and suggested next actions.
+- `POST /optimize` and `POST /explain` remain available for focused checks, now backed by the shared
+  tool modules under `app/tools/`.
+- `app/ingest/service.py` exposes `load_cashflow_from_file(path)` so you can prototype with JSON
+  fixtures (see `app/examples/plaid_sample.json`) before wiring Plaid webhooks.
+
 ## Deployments
 
 ### Deploy the Agent to Vertex AI Agent Engine

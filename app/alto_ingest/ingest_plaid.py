@@ -21,6 +21,65 @@ def _clamp_to_month(anchor: Date, start: datetime, end: datetime) -> Tuple[Date,
 def _plus_days(d: Date, n: int) -> Date: return _iso(_dt(d) + timedelta(days=n))
 def _minus_days(d: Date, n: int) -> Date: return _iso(_dt(d) - timedelta(days=n))
 
+
+def _detect_frequency(dates: List[Date]) -> str:
+    unique = sorted({_dt(d) for d in dates})
+    if len(unique) < 2:
+        return "one-time"
+    spans = [(unique[i] - unique[i - 1]).days for i in range(1, len(unique))]
+    avg = sum(spans) / len(spans)
+    if 26 <= avg <= 32:
+        return "monthly"
+    if 12 <= avg <= 18:
+        return "biweekly"
+    if 6 <= avg <= 8:
+        return "weekly"
+    if 32 < avg <= 62:
+        return "bimonthly"
+    return "irregular"
+
+
+def _group_summary(events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    groups: Dict[str, Dict[str, Any]] = {}
+    for ev in events:
+        label = str(ev.get("label") or ev.get("category") or ev.get("id"))
+        key = label.lower()
+        grp = groups.setdefault(
+            key,
+            {
+                "label": ev.get("label", label),
+                "category": ev.get("category"),
+                "merchant": ev.get("merchant"),
+                "frequency": ev.get("frequency", "one-time"),
+                "total_amount": 0.0,
+                "count": 0,
+                "last_date": ev.get("date"),
+            },
+        )
+        amount = float(ev.get("amount", 0.0))
+        grp["total_amount"] += amount
+        grp["count"] += 1
+        current_date = ev.get("date")
+        if isinstance(current_date, str) and grp.get("last_date"):
+            grp["last_date"] = max(grp["last_date"], current_date)
+    summaries: List[Dict[str, Any]] = []
+    for grp in groups.values():
+        count = max(grp["count"], 1)
+        avg = grp["total_amount"] / count
+        summaries.append(
+            {
+                "label": grp["label"],
+                "category": grp.get("category"),
+                "merchant": grp.get("merchant"),
+                "frequency": grp.get("frequency"),
+                "average_amount": round(avg, 2),
+                "count": grp["count"],
+                "last_date": grp.get("last_date"),
+            }
+        )
+    summaries.sort(key=lambda item: item["label"].lower())
+    return summaries
+
 # ---------- normalization ----------
 _SUB_MERCHANTS = {
     "spotify":"Spotify","netflix":"Netflix","icloud":"iCloud","apple icloud":"iCloud",
@@ -103,35 +162,89 @@ def plaid_to_agent_payload(plaid: Dict[str, Any]) -> Dict[str, Any]:
     seen: set[str] = set()
     cash_in: List[Dict[str, Any]] = []
     cash_out: List[Dict[str, Any]] = []
+    events_by_key: Dict[str, List[Dict[str, Any]]] = {}
 
     def _valid_amount(t: Dict[str, Any]) -> bool:
-        try: return float(t.get("amount")) > 0
-        except: return False
+        try:
+            return float(t.get("amount")) > 0
+        except Exception:
+            return False
+
+    def _register(event: Dict[str, Any]) -> None:
+        key = f"{str(event.get('label', '')).lower()}::{str(event.get('merchant', '')).lower()}"
+        events_by_key.setdefault(key, []).append(event)
 
     for t in txns:
-        tid = t.get("transaction_id"); 
-        if not tid or tid in seen: continue
-        if not _valid_amount(t): continue
+        tid = t.get("transaction_id")
+        if not tid or tid in seen:
+            continue
+        if not _valid_amount(t):
+            continue
         seen.add(tid)
 
-        amount = float(t["amount"]); date = t.get("date")
-        if not date: continue
-
-        label, cat = _label_from_plaid(t)
-
-        if cat == "income":
-            cash_in.append({"id": tid, "label": label, "date": date, "amount": amount, "fixed": True})
+        amount = float(t["amount"])
+        date = t.get("date")
+        if not date:
             continue
 
-        if cat in {"rent","utilities","internet","subscription","card_payment"}:
+        label, cat = _label_from_plaid(t)
+        raw_name = _norm(t.get("name"))
+        raw_merchant = _norm(t.get("merchant_name"))
+        category_info = t.get("personal_finance_category") or {}
+
+        base_event: Dict[str, Any] = {
+            "id": tid,
+            "label": label,
+            "date": date,
+            "amount": amount,
+            "category": cat,
+            "merchant": raw_merchant or raw_name,
+            "frequency": "one-time",
+            "source": "plaid",
+            "metadata": {
+                "original_name": raw_name,
+                "merchant_name": raw_merchant,
+                "plaid_category": category_info,
+            },
+        }
+
+        if cat == "income":
+            base_event["fixed"] = True
+            detail = (category_info.get("detailed") or "").upper()
+            base_event["stream"] = "salary" if "PAYCHECK" in detail else "income"
+            cash_in.append(base_event)
+            _register(base_event)
+            continue
+
+        if cat in {"rent", "utilities", "internet", "subscription", "card_payment"}:
             win = _window_for(cat, date)
-            fixed = (cat == "rent")
-            cash_out.append({
-                "id": tid, "label": label, "date": date, "amount": amount, "fixed": fixed, "window": win
-            })
+            base_event["fixed"] = (cat == "rent")
+            if win:
+                base_event["window"] = win
+            if cat == "subscription":
+                base_event["metadata"]["subscription_hint"] = base_event.get("merchant") or base_event["label"]
+            cash_out.append(base_event)
+            _register(base_event)
+            continue
+
+        # Discretionary or other categories (still useful for insights)
+        base_event["fixed"] = False
+        cash_out.append(base_event)
+        _register(base_event)
 
     cash_in.sort(key=lambda e: e["date"])
     cash_out.sort(key=lambda e: e["date"])
+
+    for events in events_by_key.values():
+        dates = [ev.get("date") for ev in events if ev.get("date")]
+        if not dates:
+            continue
+        freq = _detect_frequency(dates)
+        observed = sorted({*dates})
+        for ev in events:
+            ev["frequency"] = freq
+            meta = ev.setdefault("metadata", {})
+            meta["observed_dates"] = observed
 
     policy = {
         "buffer_min": 300,
@@ -139,6 +252,52 @@ def plaid_to_agent_payload(plaid: Dict[str, Any]) -> Dict[str, Any]:
         "weekend_payments": False,
         "bnpl_guard_days": 7,
         "utilization_targets": {"default": 0.10},
+    }
+
+    salary_stream = max(
+        (ev for ev in cash_in if ev.get("stream") == "salary"),
+        key=lambda ev: ev.get("amount", 0.0),
+        default=None,
+    )
+    if salary_stream:
+        policy["primary_income"] = {
+            "label": salary_stream["label"],
+            "amount": salary_stream["amount"],
+            "frequency": salary_stream.get("frequency"),
+            "merchant": salary_stream.get("merchant"),
+        }
+
+    subscriptions_summary = [
+        {
+            "id": ev["id"],
+            "label": ev["label"],
+            "amount": ev["amount"],
+            "merchant": ev.get("merchant"),
+            "frequency": ev.get("frequency"),
+            "date": ev["date"],
+        }
+        for ev in cash_out
+        if ev.get("category") == "subscription"
+    ]
+
+    recurring_expenses = _group_summary(
+        [ev for ev in cash_out if ev.get("frequency") not in {"one-time"}]
+    )
+    income_streams = _group_summary(cash_in)
+
+    meta = {
+        "income_streams": income_streams,
+        "recurring_expenses": recurring_expenses,
+        "subscriptions": subscriptions_summary,
+        "salary_stream": {
+            "label": salary_stream["label"],
+            "amount": salary_stream["amount"],
+            "frequency": salary_stream.get("frequency"),
+            "merchant": salary_stream.get("merchant"),
+            "date": salary_stream.get("date"),
+        }
+        if salary_stream
+        else None,
     }
 
     return {
@@ -149,4 +308,5 @@ def plaid_to_agent_payload(plaid: Dict[str, Any]) -> Dict[str, Any]:
         "cards": [],
         "bnplPlans": [],
         "intent": {"name": "fee_proof", "params": {}},
+        "meta": meta,
     }

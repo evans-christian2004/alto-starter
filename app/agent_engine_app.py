@@ -20,6 +20,9 @@ import copy
 import datetime as _dt_module
 from pathlib import Path
 
+from app.tools.calendar import optimize_calendar, derive_month, pick_focus
+from app.tools.explain import explain_plan, fallback_explain
+
 # ----------------- Optional Google/ADK imports (guarded) -----------------
 _GOOGLE_OK = True
 try:
@@ -53,6 +56,8 @@ if USE_OPENROUTER:
             raise RuntimeError("OpenRouter client unavailable")
 
         OpenRouterError = Exception
+
+USE_GEMINI_EXPLAIN = os.getenv("USE_GEMINI_EXPLAIN", "true").lower() in {"1", "true", "yes"}
 
 # Plaid → Agent transformer
 try:
@@ -94,157 +99,63 @@ def plaid_transform(plaid_payload: dict = Body(...)) -> dict:
         )
     return plaid_to_agent_payload(plaid_payload)
 
-# ----------------- Models for deterministic planner -----------------
+# ----------------- Calendar helpers -----------------
 Date = str  # 'YYYY-MM-DD'
 
-class PolicyDict(Dict[str, Any]): ...
-class WindowDict(Dict[str, Date]): ...
-class Change(Dict[str, Any]): ...
-
-def _dt(s: Date) -> datetime:
-    return datetime.strptime(s, "%Y-%m-%d")
-
-def _iso(d: datetime) -> Date:
-    return d.strftime("%Y-%m-%d")
-
-def _bump_to_weekday(d: datetime) -> datetime:
-    if d.weekday() == 5:  # Sat
-        return d + timedelta(days=2)
-    if d.weekday() == 6:  # Sun
-        return d + timedelta(days=1)
-    return d
 
 def _short_id(prefix: str = "plan") -> str:
     import random, string
     suf = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     return f"{prefix}_{suf}"
 
-def _derive_month(payload: Dict[str, Any]) -> str:
-    counts: Dict[str, int] = {}
-    for ev in (payload.get("cashOut", []) + payload.get("cashIn", [])):
-        try:
-            y, m, _ = ev["date"].split("-")
-            key = f"{y}-{m}"
-            counts[key] = counts.get(key, 0) + 1
-        except Exception:
-            continue
-    if counts:
-        return max(counts.items(), key=lambda kv: kv[1])[0]
-    today = datetime.now()
-    return f"{today.year:04d}-{today.month:02d}"
-
-# ----------------- Deterministic planner (MVP) -----------------
-def calendar_planner(p: Dict[str, Any]) -> Dict[str, Any]:
-    changes: List[Change] = []
-    policy: Dict[str, Any] = p.get("policy", {})
-    weekend_payments = bool(policy.get("weekend_payments", False))
-
-    # MOVE: pick first moveable (prefer Utilities/Internet) → to end of window (weekday-bumped)
-    moved = False
-    for ev in p.get("cashOut", []):
-        window = ev.get("window")
-        fixed = bool(ev.get("fixed", False))
-        if window and not fixed:
-            lbl = str(ev.get("label", "")).lower()
-            prefer = (lbl in {"utilities", "internet"})
-            if prefer or not moved:
-                to_dt = _dt(window["end"])
-                if not weekend_payments:
-                    to_dt = _bump_to_weekday(to_dt)
-                to = _iso(to_dt)
-                if to != ev["date"]:
-                    changes.append({
-                        "type": "move",
-                        "payment_id": ev["id"],
-                        "from": ev["date"],
-                        "to": to,
-                        "reason": "align_payroll",
-                    })
-                    moved = True
-                    break
-
-    # SPLIT: only if cards[] present
-    if p.get("cards"):
-        base_month = _derive_month(p)
-        y, m = map(int, base_month.split("-"))
-        first_card = p["cards"][0]
-        cut = int(first_card.get("cut_day", 28))
-        d1 = datetime(y, m, max(1, cut - 3))
-        d2 = datetime(y, m, max(1, cut - 1))
-        if not weekend_payments:
-            d1 = _bump_to_weekday(d1)
-            d2 = _bump_to_weekday(d2)
-        parts = [{"date": _iso(d1), "amount": 120}, {"date": _iso(d2), "amount": 80}]
-        from_date = (p.get("cashOut", [{}])[0] or {}).get("date", _iso(datetime.now()))
-        changes.append({
-            "type": "split",
-            "payment_id": "min_visa",
-            "from": from_date,
-            "parts": parts,
-            "reason": "pre_cut_utilization",
-        })
-        metrics = {
-            "fees_avoided": 165,
-            "overdraft_risk_delta": -0.8,
-            "buffer_min": policy.get("buffer_min", 300.0),
-            "utilization_projection": {"card_visa": {"before": 0.46, "after": 0.10}},
-        }
-        explain = [
-            "Moved a payment within its allowed window to land after paycheck.",
-            "Inserted pre-cut micro-payments to lower reported utilization.",
-        ]
-    else:
-        metrics = {
-            "fees_avoided": 120,
-            "overdraft_risk_delta": -0.6,
-            "buffer_min": policy.get("buffer_min", 300.0),
-        }
-        explain = [
-            "Moved a payment within its allowed window to land after paycheck.",
-            "No credit card provided, so no utilization split was scheduled.",
-        ]
-
-    return {"changes": changes, "metrics": metrics, "explain": explain}
-
 # ------------ Minimal endpoints for planner ------------
 @app.post("/optimize")
 def optimize(payload: Dict[str, Any]):
-    result = calendar_planner(payload)
-    return {"changes": result["changes"], "metrics": result["metrics"]}
+    focus = str(payload.get("focus") or pick_focus(payload))
+    plan = optimize_calendar(payload, focus=focus)
+    plan_dict = plan.as_dict()
+    return {
+        "focus": focus,
+        "changes": plan_dict["changes"],
+        "metrics": plan_dict["metrics"],
+        "next_actions": plan_dict["next_actions"],
+    }
 
 @app.post("/explain")
 def explain(payload: Dict[str, Any]):
-    native = [
-        "We respect your windows and buffer requirement.",
-        "Locked items are never moved.",
-        "Pre-cut payments reduce reported card utilization.",
-    ]
-    if not USE_OPENROUTER:
+    focus = str(payload.get("focus") or pick_focus(payload))
+    plan = optimize_calendar(payload, focus=focus).as_dict()
+
+    if USE_OPENROUTER:
+        native = fallback_explain(plan, focus=focus)
+        try:
+            user_msg = {
+                "role": "user",
+                "content": (
+                    "Summarize in 2–3 crisp bullets why this month’s payment schedule improves cash safety "
+                    "and credit score. Avoid fluff; be concrete.\n"
+                    f"Policy: {json.dumps(payload.get('policy', {}))}\n"
+                    f"Income (first 4): {json.dumps(payload.get('cashIn', [])[:4])}\n"
+                    f"Bills (first 6): {json.dumps(payload.get('cashOut', [])[:6])}\n"
+                ),
+            }
+            text = openrouter_chat(
+                messages=[
+                    {"role": "system", "content": "You are Alto, a precise financial planner."},
+                    user_msg,
+                ]
+            )
+            bullets = [b.strip("•- ").strip() for b in text.splitlines() if b.strip()]
+            if bullets:
+                return {"explain": bullets[:3]}
+        except OpenRouterError:
+            pass
+        except Exception:
+            pass
         return {"explain": native}
 
-    try:
-        user_msg = {
-            "role": "user",
-            "content": (
-                "Summarize in 2–3 crisp bullets why this month’s payment schedule improves cash safety "
-                "and credit score. Avoid fluff; be concrete.\n"
-                f"Policy: {json.dumps(payload.get('policy', {}))}\n"
-                f"Income (first 4): {json.dumps(payload.get('cashIn', [])[:4])}\n"
-                f"Bills (first 6): {json.dumps(payload.get('cashOut', [])[:6])}\n"
-            ),
-        }
-        text = openrouter_chat(
-            messages=[
-                {"role": "system", "content": "You are Alto, a precise financial planner."},
-                user_msg,
-            ]
-        )
-        bullets = [b.strip("•- ").strip() for b in text.split("\n") if b.strip()]
-        return {"explain": bullets[:3] or native}
-    except OpenRouterError:
-        return {"explain": native}
-    except Exception:
-        return {"explain": native}
+    bullets = explain_plan(payload, plan, focus=focus, prefer_gemini=USE_GEMINI_EXPLAIN)
+    return {"explain": bullets}
 
 @app.post("/orchestrate/plan")
 def orchestrate_plan(payload: Dict[str, Any]):
@@ -255,16 +166,32 @@ def orchestrate_plan(payload: Dict[str, Any]):
             "Pre-cut payments reduce reported card utilization.",
         ]}
     else:
-        out = calendar_planner(payload)
+        focus = payload.get("intent", {}).get("focus") or payload.get("focus") or pick_focus(payload)
+        focus = str(focus)
+        out = optimize_calendar(payload, focus=focus).as_dict()
 
     return {
         "id": _short_id("plan"),
         "user_id": str(payload.get("user", {}).get("id", "usr_demo")),
-        "month": _derive_month(payload),
+        "month": derive_month(payload),
         "changes": out["changes"],
-        "metrics": out["metrics"],
-        "explain": out["explain"],
+        "metrics": out.get("metrics", {}),
+        "explain": out.get("explain", []),
+        "focus": focus,
+        "next_actions": out.get("next_actions", []),
     }
+@app.post("/agent/session")
+def agent_session(payload: Dict[str, Any]):
+    focus = str(payload.get("focus") or pick_focus(payload))
+    plan = optimize_calendar(payload, focus=focus).as_dict()
+    explain_bullets = explain_plan(payload, plan, focus=focus, prefer_gemini=USE_GEMINI_EXPLAIN)
+    return {
+        "focus": focus,
+        "plan": plan,
+        "explain": explain_bullets,
+        "next_actions": plan.get("next_actions", []),
+    }
+
 
 # -----------------------------------------------------------------------------
 # ADK / Vertex AI Agent Engine deployment bits (unchanged; guarded)
