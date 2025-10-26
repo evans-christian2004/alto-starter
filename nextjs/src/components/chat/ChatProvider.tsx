@@ -318,7 +318,10 @@ export function ChatProvider({
       // Use provided userId or current state
       const currentUserId = requestUserId || userId;
       if (!currentUserId) {
-        throw new Error("User ID is required to send messages");
+        toast.error("User ID Required", {
+          description: "Please enter a user ID before sending messages.",
+        });
+        return;
       }
 
       try {
@@ -326,9 +329,11 @@ export function ChatProvider({
         const currentSessionId = requestSessionId || sessionId;
 
         if (!currentSessionId) {
-          throw new Error(
-            "No session available. Please create a session first."
-          );
+          toast.error("No Session Available", {
+            description: "Please create a new session before sending messages. Click 'Create New Session' in the session selector.",
+            duration: 5000,
+          });
+          return;
         }
 
         // Add user message to chat immediately
@@ -344,8 +349,19 @@ export function ChatProvider({
         await streamingManager.submitMessage(query);
       } catch (error) {
         console.error("Error submitting message:", error);
-        // Don't create fake error messages - let the UI handle the error state
-        throw error;
+        
+        // Show user-friendly error message
+        if (error instanceof Error) {
+          toast.error("Failed to Send Message", {
+            description: error.message || "An unexpected error occurred. Please try again.",
+            duration: 5000,
+          });
+        } else {
+          toast.error("Failed to Send Message", {
+            description: "An unexpected error occurred. Please check your connection and try again.",
+            duration: 5000,
+          });
+        }
       }
     },
     [userId, sessionId, addMessage, streamingManager]

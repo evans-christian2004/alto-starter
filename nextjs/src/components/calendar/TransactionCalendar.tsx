@@ -83,6 +83,38 @@ export function TransactionCalendar(): React.JSX.Element {
     return modifications.filter((mod) => mod.type === "planned");
   }, [modifications]);
 
+  // Auto-navigate to the month with the most recent modification
+  useEffect(() => {
+    if (modifications.length === 0) return;
+
+    // Collect all relevant dates (new_date for moves, date for planned)
+    const relevantDates: string[] = [];
+    
+    modifications.forEach((mod) => {
+      if (mod.type === "planned" && mod.date) {
+        relevantDates.push(mod.date);
+      } else if (mod.new_date) {
+        relevantDates.push(mod.new_date);
+      }
+    });
+
+    if (relevantDates.length === 0) return;
+
+    // Sort dates to find the most recent one
+    relevantDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    const mostRecentDate = new Date(relevantDates[0]);
+
+    // Navigate to that month (only if it's different from current)
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const targetYear = mostRecentDate.getFullYear();
+    const targetMonth = mostRecentDate.getMonth();
+
+    if (currentYear !== targetYear || currentMonth !== targetMonth) {
+      setCurrentDate(new Date(targetYear, targetMonth, 1));
+    }
+  }, [modifications]); // Don't include currentDate to avoid infinite loop
+
   const transactionsByDate = useMemo(() => {
     const grouped: Record<string, Transaction[]> = {};
     
