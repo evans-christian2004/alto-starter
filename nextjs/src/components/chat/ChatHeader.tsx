@@ -26,9 +26,10 @@ export function ChatHeader(): React.JSX.Element {
       <div className="max-w-5xl mx-auto w-full flex justify-between items-center p-4">
         {/* Left side - App branding */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Image className="bg-slate-700 rounded-2xl p-1" src="/images/logo.svg" width={40} height={40} alt="alto logo"/>
+          <div className="w-12 h-12 flex items-center justify-center">
+            <Image className="bg-sky-100 rounded-2xl p-1" src="/images/logo.svg" width={120} height={120} alt="alto logo"/>
           </div>
+          <span className="text-xl font-semibold text-sky-100">Alto</span>
         </div>
 
         {/* Right side - User controls */}
