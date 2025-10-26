@@ -40,7 +40,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function TransactionCalendar(): React.JSX.Element {
-  const [currentDate, setCurrentDate] = useState(new Date(2023, 8, 1)); // September 2023
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 1)); // October 2025
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modifications, setModifications] = useState<CalendarModification[]>([]);
 
