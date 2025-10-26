@@ -33,13 +33,20 @@ By default the frontend runs at `http://localhost:3000` and proxies chat request
   - Coordinator agent that intelligently routes requests
   - Calendar Manager specialist for transaction analysis and payment optimization
   - Q&A specialist for general financial education
+- **AI-Powered Calendar Modifications** (`app/tools/calendar_modifications.py`)
+  - Agent can suggest moving payments to better dates
+  - Add planned transactions to optimize cashflow
+  - Visual indicators for AI-optimized dates (cyan) and planned transactions (purple)
+  - Real-time calendar updates with modification tracking
 - Environment-driven routing to either local backend or Vertex AI Agent Engine
 - Robust SSE pipeline with JSON-fragment processing for Agent Engine
 - Chat UI with message list, streaming content, and activity timeline
-- **Transaction Calendar** display with interactive date selection
+- **Interactive Transaction Calendar** with date selection and modification display
 - Health checks and helpful error formatting
 
 📖 **See [MULTI_AGENT_GUIDE.md](./MULTI_AGENT_GUIDE.md)** for detailed multi-agent architecture documentation
+
+📅 **See [CALENDAR_MODIFICATION_GUIDE.md](./CALENDAR_MODIFICATION_GUIDE.md)** for calendar optimization features
 
 ## Tech Stack
 

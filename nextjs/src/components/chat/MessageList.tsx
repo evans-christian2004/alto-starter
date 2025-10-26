@@ -44,8 +44,8 @@ export function MessageList({
   }
 
   return (
-    <ScrollArea ref={scrollAreaRef} className="flex-1 px-4 py-6">
-      <div className="space-y-6 max-w-4xl mx-auto w-full">
+    <ScrollArea ref={scrollAreaRef} className="flex-1 px-2 py-4">
+      <div className="space-y-4 w-full">
         {messages.map((message, index) => (
           <MessageItem
             key={message.id}

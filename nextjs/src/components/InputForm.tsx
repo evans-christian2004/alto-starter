@@ -51,7 +51,7 @@ export function InputForm({
       <form onSubmit={handleSubmit} className="relative">
         <div
           className={`
-          relative flex items-end gap-3 p-3 rounded-2xl border transition-all duration-200
+          relative flex items-end gap-2 p-2 rounded-2xl border transition-all duration-200
           ${
             isFocused
               ? "border-cyan-400/50 bg-slate-800/80 shadow-lg shadow-cyan-500/10"
@@ -74,9 +74,9 @@ export function InputForm({
               className="
                 resize-none border-0 bg-transparent text-slate-200 placeholder-slate-400
                 focus:ring-0 focus:outline-none focus:border-0 focus:shadow-none
-                min-h-[80px] max-h-48
+                min-h-[60px] max-h-36 text-sm
                 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-600
-                px-0 py-3
+                px-0 py-2
               "
               style={{
                 fontSize: "16px",
@@ -101,11 +101,11 @@ export function InputForm({
             size="sm"
             disabled={!inputValue.trim() || isLoading}
             className="
-              h-9 px-4 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
+              h-8 px-3 text-sm bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
               text-white border-0 shadow-lg transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
               disabled:bg-slate-600 disabled:from-slate-600 disabled:to-slate-600
-              flex items-center gap-2
+              flex items-center gap-1.5
             "
           >
             {isLoading ? (

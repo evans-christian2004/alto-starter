@@ -54,9 +54,10 @@ def create_calendar_agent() -> LlmAgent:
         - Focus on protecting minimum buffer while optimizing payment timing
         
         **Important:**
-        - Reference specific transactions by merchant name and amount
+        - Reference specific transactions by merchant name, amount, and date.
         - Always calculate and show buffer impacts
-        - If transaction data is missing, ask for it specifically
+        - If the user gives a specific transaction name, use that to identify the transaction if there aren't multiple transactions in the specified time period.
+        - If transaction data is missing, ask for it specifically unless the user gives a specific transaction name and time period.
         - Prioritize avoiding overdrafts over other optimizations
         
         Use your reasoning to think through the calendar optimization step-by-step,

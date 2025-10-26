@@ -1,12 +1,31 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { ChevronLeft, ChevronRight, ArrowRight, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { userData, type Transaction } from "@/data/userData";
+
+interface CalendarModification {
+  modification_id: string;
+  transaction_id: string;
+  merchant_name: string;
+  original_date?: string;
+  new_date?: string;
+  date?: string; // For planned transactions
+  amount: number;
+  reason: string;
+  type?: string;
+  category?: string;
+  status: "suggested" | "approved";
+}
+
+interface ModificationsData {
+  modifications: CalendarModification[];
+  last_updated: string | null;
+}
 
 const CATEGORY_COLORS: Record<string, string> = {
   INCOME: "bg-green-500/20 text-green-300 border-green-500/50",
@@ -23,17 +42,91 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export function TransactionCalendar(): React.JSX.Element {
   const [currentDate, setCurrentDate] = useState(new Date(2023, 8, 1)); // September 2023
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [modifications, setModifications] = useState<CalendarModification[]>([]);
+
+  // Poll for modifications every 3 seconds
+  useEffect(() => {
+    const fetchModifications = async () => {
+      try {
+        const response = await fetch("/api/calendar-modifications");
+        if (response.ok) {
+          const data: ModificationsData = await response.json();
+          setModifications(data.modifications || []);
+        }
+      } catch (error) {
+        console.error("Error fetching modifications:", error);
+      }
+    };
+
+    fetchModifications();
+    const interval = setInterval(fetchModifications, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Create a map of transaction_id -> new_date for moved transactions
+  const movedTransactions = useMemo(() => {
+    const map = new Map<string, { newDate: string; originalDate: string; reason: string }>();
+    modifications.forEach((mod) => {
+      if (mod.type !== "planned" && mod.new_date && mod.original_date) {
+        map.set(mod.transaction_id, {
+          newDate: mod.new_date,
+          originalDate: mod.original_date,
+          reason: mod.reason,
+        });
+      }
+    });
+    return map;
+  }, [modifications]);
+
+  // Get planned transactions
+  const plannedTransactions = useMemo(() => {
+    return modifications.filter((mod) => mod.type === "planned");
+  }, [modifications]);
 
   const transactionsByDate = useMemo(() => {
     const grouped: Record<string, Transaction[]> = {};
+    
+    // Apply modifications to transactions
     userData.added.forEach((transaction) => {
-      if (!grouped[transaction.date]) {
-        grouped[transaction.date] = [];
+      const moved = movedTransactions.get(transaction.transaction_id);
+      const dateToUse = moved ? moved.newDate : transaction.date;
+      
+      if (!grouped[dateToUse]) {
+        grouped[dateToUse] = [];
       }
-      grouped[transaction.date].push(transaction);
+      grouped[dateToUse].push(transaction);
     });
+
+    // Add planned transactions
+    plannedTransactions.forEach((planned) => {
+      if (planned.date) {
+        if (!grouped[planned.date]) {
+          grouped[planned.date] = [];
+        }
+        // Create a transaction-like object for planned transactions
+        grouped[planned.date].push({
+          transaction_id: planned.transaction_id,
+          name: planned.merchant_name,
+          merchant_name: planned.merchant_name,
+          date: planned.date,
+          amount: planned.amount,
+          personal_finance_category: {
+            primary: planned.category || "GENERAL_SERVICES",
+            detailed: "",
+          },
+          account_id: "",
+          authorized_date: planned.date,
+          iso_currency_code: "USD",
+          pending: false,
+          payment_channel: "other",
+          // Mark as planned for visual differentiation
+          isPlanned: true,
+        } as Transaction & { isPlanned?: boolean });
+      }
+    });
+
     return grouped;
-  }, []);
+  }, [movedTransactions, plannedTransactions]);
 
   const selectedTransactions = useMemo(() => {
     return selectedDate ? transactionsByDate[selectedDate] || [] : [];
@@ -101,31 +194,56 @@ export function TransactionCalendar(): React.JSX.Element {
         <div className="p-6">
           <Card className="flex flex-col bg-slate-800/50 border-slate-700">
             {/* Month Navigation Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50 bg-slate-800/30">
-              <h2 className="text-xl font-semibold text-slate-100">
-                {currentDate.toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={goToPreviousMonth}
-                  className="bg-slate-700 border-slate-600 hover:bg-slate-600"
-                >
-                  <ChevronLeft className="h-4 w-4 text-slate-200" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={goToNextMonth}
-                  className="bg-slate-700 border-slate-600 hover:bg-slate-600"
-                >
-                  <ChevronRight className="h-4 w-4 text-slate-200" />
-                </Button>
+            <div className="flex flex-col px-4 py-3 border-b border-slate-700/50 bg-slate-800/30">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-slate-100">
+                  {currentDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={goToPreviousMonth}
+                    className="bg-slate-700 border-slate-600 hover:bg-slate-600"
+                  >
+                    <ChevronLeft className="h-4 w-4 text-slate-200" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={goToNextMonth}
+                    className="bg-slate-700 border-slate-600 hover:bg-slate-600"
+                  >
+                    <ChevronRight className="h-4 w-4 text-slate-200" />
+                  </Button>
+                </div>
               </div>
+              
+              {/* Legend */}
+              {(modifications.length > 0) && (
+                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-700/30">
+                  <span className="text-xs text-slate-400">Legend:</span>
+                  <div className="flex items-center gap-1">
+                    <ArrowRight className="h-3 w-3 text-cyan-400" />
+                    <span className="text-xs text-slate-300">AI Optimized</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="h-3 w-3 text-purple-400" />
+                    <span className="text-xs text-slate-300">Planned</span>
+                  </div>
+                  <div className="ml-auto">
+                    <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/50">
+                      {modifications.filter(m => m.type !== "planned").length} moved
+                    </Badge>
+                    <Badge className="ml-2 bg-purple-500/20 text-purple-300 border-purple-500/50">
+                      {plannedTransactions.length} planned
+                    </Badge>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Calendar Grid */}
@@ -153,6 +271,16 @@ export function TransactionCalendar(): React.JSX.Element {
               const transactions = transactionsByDate[dateStr] || [];
               const total = getTotalForDate(date);
               const isSelected = selectedDate === dateStr;
+              
+              // Check if any transactions on this date were moved here
+              const hasMovedTransactions = transactions.some((t) =>
+                movedTransactions.has(t.transaction_id)
+              );
+              
+              // Check if any transactions are planned
+              const hasPlannedTransactions = transactions.some(
+                (t: Transaction & { isPlanned?: boolean }) => t.isPlanned
+              );
 
               return (
                 <Card
@@ -160,27 +288,53 @@ export function TransactionCalendar(): React.JSX.Element {
                   onClick={() => setSelectedDate(dateStr)}
                   className={`min-h-[70px] p-2 cursor-pointer transition-all overflow-hidden ${
                     isSelected
-                      ? "bg-slate-700 border-slate-500 ring-2 ring-blue-500"
+                      ? "bg-slate-700 border-slate-500 ring-2 ring-cyan-500"
+                      : hasMovedTransactions
+                      ? "bg-cyan-900/20 border-cyan-700/50 hover:bg-cyan-800/30"
+                      : hasPlannedTransactions
+                      ? "bg-purple-900/20 border-purple-700/50 hover:bg-purple-800/30"
                       : "bg-slate-800/30 border-slate-700 hover:bg-slate-700/50"
                   }`}
                 >
                   <div className="flex flex-col h-full">
-                    <div className="text-sm font-semibold text-slate-200 mb-2">
-                      {date.getDate()}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-semibold text-slate-200">
+                        {date.getDate()}
+                      </div>
+                      {hasMovedTransactions && (
+                        <ArrowRight className="h-3 w-3 text-cyan-400" />
+                      )}
+                      {hasPlannedTransactions && (
+                        <Sparkles className="h-3 w-3 text-purple-400" />
+                      )}
                     </div>
                     {transactions.length > 0 && (
                       <div className="flex-1 flex flex-col gap-1 overflow-hidden">
-                        {transactions.map((transaction, idx) => (
-                          <div
-                            key={transaction.transaction_id}
-                            className={`text-[10px] px-1.5 py-0.5 rounded truncate ${getCategoryColor(
-                              transaction.personal_finance_category.primary
-                            )}`}
-                            title={`${transaction.name} - ${formatCurrency(transaction.amount)}`}
-                          >
-                            {transaction.merchant_name || transaction.name}
-                          </div>
-                        ))}
+                        {transactions.map((transaction: Transaction & { isPlanned?: boolean }) => {
+                          const isMoved = movedTransactions.has(transaction.transaction_id);
+                          const isPlanned = transaction.isPlanned;
+                          
+                          return (
+                            <div
+                              key={transaction.transaction_id}
+                              className={`text-[10px] px-1.5 py-0.5 rounded truncate ${
+                                isMoved
+                                  ? "bg-cyan-500/30 text-cyan-200 border border-cyan-400/50"
+                                  : isPlanned
+                                  ? "bg-purple-500/30 text-purple-200 border border-purple-400/50"
+                                  : getCategoryColor(
+                                      transaction.personal_finance_category.primary
+                                    )
+                              }`}
+                              title={`${transaction.name} - ${formatCurrency(transaction.amount)}${
+                                isMoved ? " (Moved)" : isPlanned ? " (Planned)" : ""
+                              }`}
+                            >
+                              {isPlanned && "📅 "}
+                              {transaction.merchant_name || transaction.name}
+                            </div>
+                          );
+                        })}
                         {transactions.length > 0 && (
                           <div className={`text-[10px] font-bold mt-auto pt-1 border-t border-slate-600 ${
                             transactions.some(t => t.personal_finance_category.primary === "INCOME")
@@ -222,42 +376,77 @@ export function TransactionCalendar(): React.JSX.Element {
                   </div>
                   <div className="max-h-[300px] overflow-y-auto">
                     <div className="space-y-2">
-                      {selectedTransactions.map((transaction) => (
-                        <Card
-                          key={transaction.transaction_id}
-                          className="p-3 bg-slate-800/50 border-slate-700"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="font-medium text-slate-100">
-                                {transaction.name}
-                              </div>
-                              <div className="text-sm text-slate-400">
-                                {transaction.merchant_name}
-                              </div>
-                              <Badge
-                                className={`mt-2 ${getCategoryColor(
-                                  transaction.personal_finance_category.primary
-                                )}`}
-                                variant="outline"
-                              >
-                                {transaction.personal_finance_category.primary.replace(
-                                  /_/g,
-                                  " "
+                      {selectedTransactions.map((transaction: Transaction & { isPlanned?: boolean }) => {
+                        const moved = movedTransactions.get(transaction.transaction_id);
+                        const isPlanned = transaction.isPlanned;
+                        
+                        return (
+                          <Card
+                            key={transaction.transaction_id}
+                            className={`p-3 ${
+                              moved
+                                ? "bg-cyan-900/30 border-cyan-700/50"
+                                : isPlanned
+                                ? "bg-purple-900/30 border-purple-700/50"
+                                : "bg-slate-800/50 border-slate-700"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="font-medium text-slate-100 flex items-center gap-2">
+                                  {transaction.name}
+                                  {moved && (
+                                    <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/50">
+                                      Moved
+                                    </Badge>
+                                  )}
+                                  {isPlanned && (
+                                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50">
+                                      Planned
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="text-sm text-slate-400">
+                                  {transaction.merchant_name}
+                                </div>
+                                {moved && (
+                                  <div className="mt-2 text-xs text-cyan-300 bg-cyan-900/20 p-2 rounded border border-cyan-700/30">
+                                    <div className="flex items-center gap-1 mb-1">
+                                      <ArrowRight className="h-3 w-3" />
+                                      <span className="font-semibold">
+                                        Moved from {new Date(moved.originalDate + "T00:00:00").toLocaleDateString("en-US", {
+                                          month: "short",
+                                          day: "numeric",
+                                        })}
+                                      </span>
+                                    </div>
+                                    <div className="text-slate-400">{moved.reason}</div>
+                                  </div>
                                 )}
-                              </Badge>
+                                <Badge
+                                  className={`mt-2 ${getCategoryColor(
+                                    transaction.personal_finance_category.primary
+                                  )}`}
+                                  variant="outline"
+                                >
+                                  {transaction.personal_finance_category.primary.replace(
+                                    /_/g,
+                                    " "
+                                  )}
+                                </Badge>
+                              </div>
+                              <div className={`text-lg font-bold ${
+                                transaction.personal_finance_category.primary === "INCOME"
+                                  ? "text-green-400"
+                                  : "text-red-400"
+                              }`}>
+                                {transaction.personal_finance_category.primary === "INCOME" ? "+" : "-"}
+                                {formatCurrency(transaction.amount)}
+                              </div>
                             </div>
-                            <div className={`text-lg font-bold ${
-                              transaction.personal_finance_category.primary === "INCOME"
-                                ? "text-green-400"
-                                : "text-red-400"
-                            }`}>
-                              {transaction.personal_finance_category.primary === "INCOME" ? "+" : "-"}
-                              {formatCurrency(transaction.amount)}
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 </Card>
