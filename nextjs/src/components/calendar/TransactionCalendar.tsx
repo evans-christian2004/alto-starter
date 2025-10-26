@@ -192,7 +192,7 @@ export function TransactionCalendar(): React.JSX.Element {
     <div className="h-full flex flex-col bg-slate-900">
       <ScrollArea className="flex-1">
         <div className="p-6">
-          <Card className="flex flex-col bg-slate-800/50 border-slate-700">
+          <Card className="flex flex-col rounded-3xl bg-slate-800/50 border-slate-700">
             {/* Month Navigation Header */}
             <div className="flex flex-col px-4 py-3 border-b border-slate-700/50 bg-slate-800/30">
               <div className="flex items-center justify-between">
@@ -317,7 +317,7 @@ export function TransactionCalendar(): React.JSX.Element {
                           return (
                             <div
                               key={transaction.transaction_id}
-                              className={`text-[10px] px-1.5 py-0.5 rounded truncate ${
+                              className={`text-[10px] px-1.5 py-0.5 rounded-2xl truncate ${
                                 isMoved
                                   ? "bg-cyan-500/30 text-cyan-200 border border-cyan-400/50"
                                   : isPlanned
