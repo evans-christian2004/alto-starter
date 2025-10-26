@@ -4,7 +4,7 @@ Production-ready fullstack template showing how to wire a Python ADK backend to 
 
 This repo contains:
 
-- Backend: Python app using Google ADK to run a goal-planning LLM agent
+- Backend: Python app using Google ADK to run Alto, a financial assistant LLM agent
 - Frontend: Next.js app with a chat UI, activity timeline, and SSE streaming
 - Make targets and scripts to run locally and deploy
 
@@ -100,7 +100,7 @@ GOOGLE_CLOUD_STAGING_BUCKET=my-staging-bucket
 
 # Optional
 MODEL=gemini-2.5-flash
-AGENT_NAME=goal-planning-agent
+AGENT_NAME=alto-financial-assistant
 EXTRA_PACKAGES=./app
 REQUIREMENTS_FILE=.requirements.txt
 ```

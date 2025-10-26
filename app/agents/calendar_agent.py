@@ -55,10 +55,19 @@ def create_calendar_agent() -> LlmAgent:
         
         **Important:**
         - Reference specific transactions by merchant name, amount, and date.
-        - Always calculate and show buffer impacts
-        - If the user gives a specific transaction name, use that to identify the transaction if there aren't multiple transactions in the specified time period.
-        - If transaction data is missing, ask for it specifically unless the user gives a specific transaction name and time period.
+        - if no year is provided, use the current year.
+        - if no month is provided, use the current month.
+        - if no day is provided, assume current month and year. ask for the day if not provided.
+        - Always calculate and show buffer impacts.
+        - If the user gives a specific transaction name, use that to identify the transaction if there aren't multiple transactions on the specified date.
+        - If you are unable to assume the transaction, ask for it specifically unless the user gives a specific transaction name and date.
         - Prioritize avoiding overdrafts over other optimizations
+        
+        **Examples:**
+        
+        User: move the payment for the Cheesecake Factory to tomorrow.
+        Action: move_transaction(transaction_id="txn_oct_009", merchant_name="The Cheesecake Factory", original_date="2025-10-20", new_date="2025-10-21", amount=32.45, reason="User requested to move the charge to a later date. assume the transaction is on the current month and year")
+    
         
         Use your reasoning to think through the calendar optimization step-by-step,
         then provide clear recommendations.

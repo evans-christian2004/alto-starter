@@ -16,7 +16,7 @@
  */
 export function getEventTitle(agentName: string): string {
   // For single agent, focus on activity type rather than agent name
-  if (agentName === "goal_planning_agent") {
+  if (agentName === "alto_financial_assistant") {
     return "🎯 Planning Strategy";
   }
   if (agentName.includes("plan") || agentName.includes("planning")) {

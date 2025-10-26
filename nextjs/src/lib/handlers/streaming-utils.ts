@@ -26,14 +26,14 @@ export function createPassThroughStream(
     start(controller) {
       if (!sourceResponse.body) {
         console.log(
-          `❌ No response body from ${deploymentType} for goal planning`
+          `❌ No response body from ${deploymentType} for agent`
         );
         controller.close();
         return;
       }
 
       console.log(
-        `✅ ${deploymentType} goal planning response body exists, starting stream reader...`
+        `✅ ${deploymentType} agent response body exists, starting stream reader...`
       );
 
       const reader = sourceResponse.body.getReader();
@@ -47,7 +47,7 @@ export function createPassThroughStream(
 
             if (done) {
               console.log(
-                `🏁 Goal planning stream complete after ${chunkCount} chunks`
+                `🏁 Agent stream complete after ${chunkCount} chunks`
               );
               break;
             }
@@ -55,24 +55,24 @@ export function createPassThroughStream(
             chunkCount++;
             const chunk = decoder.decode(value, { stream: true });
             console.log(
-              `📦 Goal planning chunk ${chunkCount} received (${chunk.length} bytes):`,
+              `📦 Agent chunk ${chunkCount} received (${chunk.length} bytes):`,
               chunk.substring(0, 200) + (chunk.length > 200 ? "..." : "")
             );
 
             // Forward the SSE chunk as-is
             controller.enqueue(new TextEncoder().encode(chunk));
             console.log(
-              `✅ Goal planning chunk ${chunkCount} forwarded to client`
+              `✅ Agent chunk ${chunkCount} forwarded to client`
             );
           }
         } catch (error) {
           console.error(
-            `❌ Error reading ${deploymentType} goal planning stream:`,
+            `❌ Error reading ${deploymentType} agent stream:`,
             error
           );
         } finally {
           console.log(
-            `🔚 Closing goal planning stream controller after ${chunkCount} chunks`
+            `🔚 Closing agent stream controller after ${chunkCount} chunks`
           );
           controller.close();
         }
@@ -92,7 +92,7 @@ export function validateStreamingResponse(
 ): boolean {
   if (!response.ok) {
     console.error(
-      `❌ ${deploymentType} goal planning stream error:`,
+      `❌ ${deploymentType} agent stream error:`,
       response.status,
       response.statusText
     );

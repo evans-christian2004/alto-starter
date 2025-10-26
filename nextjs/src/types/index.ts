@@ -8,7 +8,7 @@ export interface Message {
   timestamp: Date;
 }
 
-// Goal planning types
+// Financial goal and planning types
 export interface Goal {
   id: string;
   title: string;
@@ -66,7 +66,7 @@ export interface AgentResponse {
   };
 }
 
-// Timeline event types for goal planning
+// Timeline event types for agent activities
 export interface TimelineEvent {
   id: string;
   type:

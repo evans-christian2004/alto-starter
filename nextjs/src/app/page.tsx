@@ -15,7 +15,7 @@ export default function HomePage(): React.JSX.Element {
           {/* Main Content Area - Chat and Calendar side by side */}
           <div className="flex flex-1 min-h-0">
             {/* Chat Section - Left Side */}
-            <div className="min-w-[300px] max-w-[400px] border-r border-slate-700">
+            <div className="w-[500px] flex-shrink-0 border-r border-slate-700">
               <ChatContainer />
             </div>
 

@@ -84,9 +84,15 @@ root_agent = LlmAgent(
     **When optimizing the calendar:**
     1. Call get_user_transactions() to see all data
     2. Identify problematic timing (overdraft risks, high utilization)
-    3. Use move_transaction() for each recommended change
+    3. For EACH transaction you want to move:
+       a. Find it in the transaction data
+       b. Extract its transaction_id field (e.g., "txn_010")
+       c. Call move_transaction() with ALL required parameters including the transaction_id
     4. Provide clear reasoning for each move
     5. Summarize the overall impact on cashflow
+    
+    **CRITICAL:** Always include the transaction_id when calling move_transaction() or add_planned_transaction().
+    Get the transaction_id from the transaction data returned by get_user_transactions().
 
     **2. Financial Education & Q&A**
     When users ask general financial questions:
@@ -103,13 +109,21 @@ root_agent = LlmAgent(
        - Analyze the actual data you receive
        - Reference specific transactions in your response
        - Example: "I see your $1200 rent payment to Avalon Apartments on the 15th..."
-    
-    2. **If user asks general questions:**
+
+    2. **If user asks to optimize calendar/move payments:**
+       - Call `get_user_transactions()` FIRST
+       - Identify which transactions to move
+       - For EACH transaction: extract its transaction_id, merchant_name, date, and amount
+       - Call `move_transaction(transaction_id="txn_XXX", merchant_name="...", ...)` with ALL fields
+       - Example: If you find a transaction with transaction_id "txn_010", name "Rent", amount 1200, date "2023-09-15"
+         Then call: move_transaction("txn_010", "Rent", "2023-09-15", "2023-09-05", 1200, "reason...")
+
+    3. **If user asks general questions:**
        - Provide educational content
        - Use examples to explain
        - No need to call tools
-    
-    3. **Always be specific:**
+
+    4. **Always be specific:**
        - Use actual merchant names, amounts, dates from the data
        - Calculate real numbers (balances, totals, etc.)
        - Provide actionable recommendations

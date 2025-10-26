@@ -129,11 +129,11 @@ export function createSessionCreationError(
  * Create generic internal server error response (500)
  */
 export function createInternalServerError(
-  message: string = "Failed to process goal planning request",
+  message: string = "Failed to process agent request",
   error?: Error | unknown,
   details?: string
 ): NextResponse<ApiResponse<never>> {
-  console.error("❌ Goal planning endpoint error:", error);
+  console.error("❌ Agent endpoint error:", error);
 
   const errorDetails =
     details || (error instanceof Error ? error.message : undefined);

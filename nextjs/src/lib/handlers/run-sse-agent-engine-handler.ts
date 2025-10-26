@@ -184,7 +184,7 @@ class JSONFragmentProcessor {
       content: {
         parts: [part],
       },
-      author: this.currentAgent || "goal_planning_agent",
+      author: this.currentAgent || "alto_financial_assistant",
     };
 
     // Convert to proper SSE format: data: {...}\n\n
@@ -205,7 +205,7 @@ class JSONFragmentProcessor {
     );
     console.log(`📋 [JSON PROCESSOR] Complete fragment content:`, fragment);
 
-    this.currentAgent = fragment.author || "goal_planning_agent";
+    this.currentAgent = fragment.author || "alto_financial_assistant";
 
     // CRITICAL FIX: Process the actual content parts!
     if (fragment.content?.parts && Array.isArray(fragment.content.parts)) {
@@ -246,7 +246,7 @@ class JSONFragmentProcessor {
       fragment.isFinal
     ) {
       const additionalData: Record<string, unknown> = {
-        author: fragment.author || "goal_planning_agent",
+        author: fragment.author || "alto_financial_assistant",
       };
 
       if (fragment.actions) additionalData.actions = fragment.actions;

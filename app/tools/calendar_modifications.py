@@ -50,8 +50,11 @@ def move_transaction(
     This tool records a suggestion to move a payment or transaction to optimize
     cashflow, avoid overdrafts, or improve credit utilization.
     
+    **IMPORTANT:** You MUST first call get_user_transactions() to get the transaction data,
+    then extract the transaction_id field from the specific transaction you want to move.
+    
     Args:
-        transaction_id: Unique identifier for the transaction
+        transaction_id: The transaction_id field from the transaction (REQUIRED - get this from get_user_transactions())
         merchant_name: Name of the merchant/payee (e.g., "Avalon Apartments", "Spotify")
         original_date: Original transaction date in YYYY-MM-DD format
         new_date: Proposed new date in YYYY-MM-DD format
@@ -61,14 +64,19 @@ def move_transaction(
     Returns:
         Confirmation of the modification with details
         
-    Example:
+    Workflow Example:
+        1. First, call get_user_transactions() to get all transactions
+        2. Find the transaction you want to move (e.g., rent payment)
+        3. Extract its transaction_id field (e.g., "txn_010")
+        4. Then call this function:
+        
         move_transaction(
-            "txn_010",
-            "Avalon Apartments", 
-            "2023-09-15",
-            "2023-09-05",
-            1200.00,
-            "Moving rent payment earlier to avoid overdraft risk after utilities payment"
+            transaction_id="txn_010",  # ← From the transaction data!
+            merchant_name="Avalon Apartments", 
+            original_date="2023-09-15",
+            new_date="2023-09-05",
+            amount=1200.00,
+            reason="Moving rent payment earlier to avoid overdraft risk after utilities payment"
         )
     """
     data = _load_modifications()

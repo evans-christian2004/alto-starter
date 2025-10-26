@@ -271,7 +271,7 @@ if _GOOGLE_OK:
         agent_config = {
             "agent_engine": agent_engine,
             "display_name": deployment_config.agent_name,
-            "description": "A simple goal planning agent",
+            "description": "Alto: An AI-powered financial assistant for transaction analysis and calendar optimization",
             "extra_packages": deployment_config.extra_packages,
             "env_vars": env_vars,
             "requirements": requirements,
