@@ -127,7 +127,7 @@ export function UserIdInput({
   return (
     <div className={`${className}`}>
       {isEditing ? (
-        <div className="bg-slate-700/50 backdrop-blur-sm border border-slate-600/50 rounded-lg p-2 flex items-center gap-2">
+        <div className="bg-slate-700/50 backdrop-blur-sm border border-slate-600/50 rounded-xl p-2 flex items-center gap-2">
           <User className="w-4 h-4 text-slate-300 flex-shrink-0" />
           <Input
             data-testid="user-id-input"
@@ -151,7 +151,7 @@ export function UserIdInput({
               isLoading ||
               (shouldShowValidation && !isValid)
             }
-            className="h-7 px-2 bg-cyan-600 hover:bg-cyan-700 text-white"
+            className="h-7 px-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white"
           >
             {isLoading ? (
               <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -164,7 +164,7 @@ export function UserIdInput({
             variant="outline"
             onClick={handleCancel}
             disabled={isLoading}
-            className="h-7 px-2 border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-slate-100"
+            className="h-7 px-2 rounded-xl border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-slate-100"
           >
             <X className="w-3 h-3" />
           </Button>

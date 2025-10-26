@@ -102,7 +102,7 @@ export function InputForm({
             disabled={!inputValue.trim() || isLoading}
             className="
               h-8 px-3 text-sm bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700
-              text-white border-0 shadow-lg transition-all duration-200
+              text-white rounded-2xl border-0 shadow-lg transition-all duration-200
               disabled:opacity-50 disabled:cursor-not-allowed
               disabled:bg-slate-600 disabled:from-slate-600 disabled:to-slate-600
               flex items-center gap-1.5

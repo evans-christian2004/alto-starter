@@ -192,7 +192,7 @@ export function TransactionCalendar(): React.JSX.Element {
     <div className="h-full flex flex-col bg-slate-900">
       <ScrollArea className="flex-1">
         <div className="p-6">
-          <Card className="flex flex-col rounded-3xl bg-slate-800/50 border-slate-700">
+          <Card className="flex flex-col rounded-3xl bg-slate-800/50 border-slate-700 overflow-hidden">
             {/* Month Navigation Header */}
             <div className="flex flex-col px-4 py-3 border-b border-slate-700/50 bg-slate-800/30">
               <div className="flex items-center justify-between">
@@ -207,7 +207,7 @@ export function TransactionCalendar(): React.JSX.Element {
                     variant="outline"
                     size="icon"
                     onClick={goToPreviousMonth}
-                    className="bg-slate-700 border-slate-600 hover:bg-slate-600"
+                    className="bg-slate-700 border-slate-600 hover:bg-slate-600 rounded-2xl"
                   >
                     <ChevronLeft className="h-4 w-4 text-slate-200" />
                   </Button>
@@ -215,7 +215,7 @@ export function TransactionCalendar(): React.JSX.Element {
                     variant="outline"
                     size="icon"
                     onClick={goToNextMonth}
-                    className="bg-slate-700 border-slate-600 hover:bg-slate-600"
+                    className="bg-slate-700 border-slate-600 hover:bg-slate-600 rounded-2xl"
                   >
                     <ChevronRight className="h-4 w-4 text-slate-200" />
                   </Button>
@@ -374,7 +374,7 @@ export function TransactionCalendar(): React.JSX.Element {
                       Close
                     </Button>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto">
+                  <div className="max-h-[300px] rounded-xl overflow-y-auto">
                     <div className="space-y-2">
                       {selectedTransactions.map((transaction: Transaction & { isPlanned?: boolean }) => {
                         const moved = movedTransactions.get(transaction.transaction_id);
@@ -455,6 +455,28 @@ export function TransactionCalendar(): React.JSX.Element {
           </Card>
         </div>
       </ScrollArea>
+
+      {/* Global styles to round session/select controls.
+          Apply className="session-select" to your session dropdown component
+          if you want to target it explicitly. */}
+      <style jsx global>{`
+        /* explicit class you can add to the session select component */
+        .session-select,
+        .session-select .trigger,
+        .session-select .select-trigger {
+          border-radius: 0.75rem !important;
+          overflow: hidden;
+        }
+
+        /* generic fallbacks to catch common select/combobox implementations */
+        select,
+        [role="combobox"],
+        .select,
+        .SelectTrigger,
+        .trigger {
+          border-radius: 0.75rem !important;
+        }
+      `}</style>
     </div>
   );
 }

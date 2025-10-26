@@ -14,13 +14,13 @@ export function EmptyState(): React.JSX.Element {
         <div className="space-y-3">
           <p className="text-neutral-400 text-sm">Try asking about:</p>
           <div className="flex flex-col gap-2">
-            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-xs">
+            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-sm">
               Your Finances
             </span>
-            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-xs">
+            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-sm">
               Moving Purchases
             </span>
-            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-xs">
+            <span className="px-2 py-1 bg-slate-700/50 text-slate-300 rounded-lg text-sm">
               Account Insights
             </span>
           </div>
