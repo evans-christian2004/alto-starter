@@ -21,6 +21,381 @@ export const userData = {
       "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
       "amount": 2400,
       "iso_currency_code": "USD",
+      "date": "2025-07-26",
+      "name": "Direct Deposit - ACME Corp Payroll",
+      "merchant_name": "ACME Corp",
+      "payment_channel": "other",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "INCOME_PAYCHECK"
+      },
+      "transaction_id": "txn_jul_001"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 1200,
+      "iso_currency_code": "USD",
+      "date": "2025-07-28",
+      "name": "Rent Payment - Avalon Apartments",
+      "merchant_name": "Avalon Apartments",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "TRANSFER_OUT",
+        "detailed": "TRANSFER_OUT_RENT"
+      },
+      "transaction_id": "txn_jul_002"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 13.99,
+      "iso_currency_code": "USD",
+      "date": "2025-07-29",
+      "name": "Spotify Subscription",
+      "merchant_name": "Spotify",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_jul_003"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 9.99,
+      "iso_currency_code": "USD",
+      "date": "2025-07-30",
+      "name": "Netflix Subscription",
+      "merchant_name": "Netflix",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_jul_004"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 82.45,
+      "iso_currency_code": "USD",
+      "date": "2025-07-31",
+      "name": "Electric Bill - SDGE",
+      "merchant_name": "San Diego Gas & Electric",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_ELECTRICITY"
+      },
+      "transaction_id": "txn_jul_005"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 2400,
+      "iso_currency_code": "USD",
+      "date": "2025-08-01",
+      "name": "Direct Deposit - ACME Corp Payroll",
+      "merchant_name": "ACME Corp",
+      "payment_channel": "other",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "INCOME_PAYCHECK"
+      },
+      "transaction_id": "txn_aug_001"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 45.67,
+      "iso_currency_code": "USD",
+      "date": "2025-08-02",
+      "name": "Shell Gas Station",
+      "merchant_name": "Shell",
+      "payment_channel": "in store",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "TRANSPORTATION_GAS"
+      },
+      "transaction_id": "txn_aug_002"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 13.99,
+      "iso_currency_code": "USD",
+      "date": "2025-08-03",
+      "name": "Spotify Subscription",
+      "merchant_name": "Spotify",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_aug_003"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 9.99,
+      "iso_currency_code": "USD",
+      "date": "2025-08-04",
+      "name": "Netflix Subscription",
+      "merchant_name": "Netflix",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_aug_004"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 72.34,
+      "iso_currency_code": "USD",
+      "date": "2025-08-05",
+      "name": "Trader Joe's",
+      "merchant_name": "Trader Joe's",
+      "payment_channel": "in store",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "FOOD_AND_DRINK_GROCERIES"
+      },
+      "transaction_id": "txn_aug_005"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 80.12,
+      "iso_currency_code": "USD",
+      "date": "2025-08-06",
+      "name": "Electric Bill - SDGE",
+      "merchant_name": "San Diego Gas & Electric",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_ELECTRICITY"
+      },
+      "transaction_id": "txn_aug_006"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 1200,
+      "iso_currency_code": "USD",
+      "date": "2025-08-15",
+      "name": "Rent Payment - Avalon Apartments",
+      "merchant_name": "Avalon Apartments",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "TRANSFER_OUT",
+        "detailed": "TRANSFER_OUT_RENT"
+      },
+      "transaction_id": "txn_aug_007"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 19.99,
+      "iso_currency_code": "USD",
+      "date": "2025-08-12",
+      "name": "Apple iCloud+",
+      "merchant_name": "Apple",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_SUBSCRIPTION"
+      },
+      "transaction_id": "txn_aug_008"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 35.45,
+      "iso_currency_code": "USD",
+      "date": "2025-08-18",
+      "name": "DoorDash - Shake Shack",
+      "merchant_name": "Shake Shack",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "FOOD_AND_DRINK_RESTAURANT"
+      },
+      "transaction_id": "txn_aug_009"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 54.30,
+      "iso_currency_code": "USD",
+      "date": "2025-08-27",
+      "name": "Comcast Internet",
+      "merchant_name": "Comcast",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_INTERNET"
+      },
+      "transaction_id": "txn_aug_010"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 2400,
+      "iso_currency_code": "USD",
+      "date": "2025-10-01",
+      "name": "Direct Deposit - ACME Corp Payroll",
+      "merchant_name": "ACME Corp",
+      "payment_channel": "other",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "INCOME",
+        "detailed": "INCOME_PAYCHECK"
+      },
+      "transaction_id": "txn_oct_001"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 13.99,
+      "iso_currency_code": "USD",
+      "date": "2025-10-02",
+      "name": "Spotify Subscription",
+      "merchant_name": "Spotify",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_oct_002"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 9.99,
+      "iso_currency_code": "USD",
+      "date": "2025-10-03",
+      "name": "Netflix Subscription",
+      "merchant_name": "Netflix",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "ENTERTAINMENT",
+        "detailed": "ENTERTAINMENT_SUBSCRIPTIONS"
+      },
+      "transaction_id": "txn_oct_003"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 68.23,
+      "iso_currency_code": "USD",
+      "date": "2025-10-05",
+      "name": "Trader Joe's",
+      "merchant_name": "Trader Joe's",
+      "payment_channel": "in store",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "FOOD_AND_DRINK_GROCERIES"
+      },
+      "transaction_id": "txn_oct_004"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 85.75,
+      "iso_currency_code": "USD",
+      "date": "2025-10-06",
+      "name": "Electric Bill - SDGE",
+      "merchant_name": "San Diego Gas & Electric",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_ELECTRICITY"
+      },
+      "transaction_id": "txn_oct_005"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 48.32,
+      "iso_currency_code": "USD",
+      "date": "2025-10-08",
+      "name": "Shell Gas Station",
+      "merchant_name": "Shell",
+      "payment_channel": "in store",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "TRANSPORTATION",
+        "detailed": "TRANSPORTATION_GAS"
+      },
+      "transaction_id": "txn_oct_006"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 19.99,
+      "iso_currency_code": "USD",
+      "date": "2025-10-12",
+      "name": "Apple iCloud+",
+      "merchant_name": "Apple",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_SUBSCRIPTION"
+      },
+      "transaction_id": "txn_oct_007"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 1200,
+      "iso_currency_code": "USD",
+      "date": "2025-10-15",
+      "name": "Rent Payment - Avalon Apartments",
+      "merchant_name": "Avalon Apartments",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "TRANSFER_OUT",
+        "detailed": "TRANSFER_OUT_RENT"
+      },
+      "transaction_id": "txn_oct_008"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 32.45,
+      "iso_currency_code": "USD",
+      "date": "2025-10-20",
+      "name": "DoorDash - The Cheesecake Factory",
+      "merchant_name": "The Cheesecake Factory",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "FOOD_AND_DRINK_RESTAURANT"
+      },
+      "transaction_id": "txn_oct_009"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 54.30,
+      "iso_currency_code": "USD",
+      "date": "2025-10-25",
+      "name": "Comcast Internet",
+      "merchant_name": "Comcast",
+      "payment_channel": "online",
+      "pending": false,
+      "personal_finance_category": {
+        "primary": "UTILITIES",
+        "detailed": "UTILITIES_INTERNET"
+      },
+      "transaction_id": "txn_oct_010"
+    },
+    {
+      "account_id": "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+      "amount": 2400,
+      "iso_currency_code": "USD",
       "date": "2025-09-01",
       "name": "Direct Deposit - ACME Corp Payroll",
       "merchant_name": "ACME Corp",
