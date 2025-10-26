@@ -12,8 +12,6 @@ from app.config import config
 
 def create_calendar_agent() -> LlmAgent:
     """
-    Create an agent specialized in calendar/transaction management.
-    
     This agent analyzes financial transactions, payment schedules,
     and suggests optimal timing for payments to improve cashflow.
     """

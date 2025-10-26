@@ -9,9 +9,7 @@ from app.config import config
 
 
 def create_qa_agent() -> LlmAgent:
-    """
-    Create an agent specialized in answering general financial questions.
-    
+    """ 
     This agent handles questions about budgeting, financial concepts,
     money management strategies, and general financial advice.
     """

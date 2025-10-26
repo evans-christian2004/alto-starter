@@ -43,6 +43,7 @@ export function TransactionCalendar(): React.JSX.Element {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 1)); // October 2025
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modifications, setModifications] = useState<CalendarModification[]>([]);
+  const [hasAutoNavigated, setHasAutoNavigated] = useState(false);
 
   // Poll for modifications every 3 seconds
   useEffect(() => {
@@ -83,9 +84,17 @@ export function TransactionCalendar(): React.JSX.Element {
     return modifications.filter((mod) => mod.type === "planned");
   }, [modifications]);
 
-  // Auto-navigate to the month with the most recent modification
+  // Auto-navigate to the month with the most recent modification (only once when modifications appear)
   useEffect(() => {
-    if (modifications.length === 0) return;
+    // Only auto-navigate once when modifications first appear
+    if (modifications.length === 0) {
+      // Reset flag when modifications are cleared
+      setHasAutoNavigated(false);
+      return;
+    }
+
+    // Don't auto-navigate if we've already done it
+    if (hasAutoNavigated) return;
 
     // Collect all relevant dates (new_date for moves, date for planned)
     const relevantDates: string[] = [];
@@ -104,16 +113,13 @@ export function TransactionCalendar(): React.JSX.Element {
     relevantDates.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
     const mostRecentDate = new Date(relevantDates[0]);
 
-    // Navigate to that month (only if it's different from current)
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
+    // Navigate to that month
     const targetYear = mostRecentDate.getFullYear();
     const targetMonth = mostRecentDate.getMonth();
-
-    if (currentYear !== targetYear || currentMonth !== targetMonth) {
-      setCurrentDate(new Date(targetYear, targetMonth, 1));
-    }
-  }, [modifications]); // Don't include currentDate to avoid infinite loop
+    
+    setCurrentDate(new Date(targetYear, targetMonth, 1));
+    setHasAutoNavigated(true); // Mark that we've auto-navigated
+  }, [modifications.length, hasAutoNavigated]); // Only depend on length, not the full array
 
   const transactionsByDate = useMemo(() => {
     const grouped: Record<string, Transaction[]> = {};
@@ -296,7 +302,7 @@ export function TransactionCalendar(): React.JSX.Element {
               <div className="grid grid-cols-7 gap-2">
             {calendarDays.map((date, index) => {
               if (!date) {
-                return <div key={`empty-${index}`} className="min-h-[70px]" />;
+                return <div key={`empty-${index}`} className="min-h-[85px]" />;
               }
 
               const dateStr = formatDate(date);
@@ -318,7 +324,7 @@ export function TransactionCalendar(): React.JSX.Element {
                 <Card
                   key={dateStr}
                   onClick={() => setSelectedDate(dateStr)}
-                  className={`min-h-[70px] p-2 cursor-pointer transition-all overflow-hidden ${
+                  className={`min-h-[85px] p-2 cursor-pointer transition-all overflow-hidden ${
                     isSelected
                       ? "bg-slate-700 border-slate-500 ring-2 ring-cyan-500"
                       : hasMovedTransactions
