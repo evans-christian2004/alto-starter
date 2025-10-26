@@ -29,11 +29,17 @@ By default the frontend runs at `http://localhost:3000` and proxies chat request
 
 ## Features
 
-- Goal-planning LLM agent powered by Google ADK (`app/agent.py`)
+- **Multi-Agent System** using Google ADK's Coordinator/Dispatcher pattern (`app/agents/`)
+  - Coordinator agent that intelligently routes requests
+  - Calendar Manager specialist for transaction analysis and payment optimization
+  - Q&A specialist for general financial education
 - Environment-driven routing to either local backend or Vertex AI Agent Engine
 - Robust SSE pipeline with JSON-fragment processing for Agent Engine
 - Chat UI with message list, streaming content, and activity timeline
+- **Transaction Calendar** display with interactive date selection
 - Health checks and helpful error formatting
+
+📖 **See [MULTI_AGENT_GUIDE.md](./MULTI_AGENT_GUIDE.md)** for detailed multi-agent architecture documentation
 
 ## Tech Stack
 
@@ -45,7 +51,11 @@ By default the frontend runs at `http://localhost:3000` and proxies chat request
 
 ```
 app/                       # Python ADK backend
-  agent.py                 # Root agent definition (goal-planning)
+  agent.py                 # Multi-agent system initialization
+  agents/                  # Multi-agent modules
+    coordinator_agent.py   # Routes requests to specialists
+    calendar_agent.py      # Transaction analysis specialist
+    qa_agent.py            # Financial Q&A specialist
   agent_engine_app.py      # Deployment helper for Vertex AI Agent Engine
   config.py                # Env loading, Vertex init, deployment config
   utils/                   # GCS + tracing helpers

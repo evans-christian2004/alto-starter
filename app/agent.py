@@ -1,3 +1,9 @@
+"""
+Multi-Agent System for Alto Financial Assistant
+
+This module implements a multi-agent system using Google ADK that intelligently
+routes between calendar management and general Q&A based on user intent.
+"""
 from datetime import datetime, timezone
 
 import google.genai.types as genai_types
@@ -6,52 +12,53 @@ from google.adk.planners import BuiltInPlanner
 
 from app.config import config
 
-# --- ROOT AGENT DEFINITION ---
+# For now, using a unified agent that can handle both calendar and Q&A
+# Multi-agent delegation will be added after verifying basic streaming works
 root_agent = LlmAgent(
     name=config.internal_agent_name,
     model=config.model,
-    description="Alto's money coach orchestrator that analyzes cashflow goals, allocates calendar moves, and coordinates downstream explainer agents.",
+    description="Alto's financial assistant that helps with transaction analysis, payment optimization, and financial education.",
     planner=BuiltInPlanner(
         thinking_config=genai_types.ThinkingConfig(include_thoughts=True)
     ),
     instruction=f"""
-    You are Alto, a financial automation conductor. Ingest the user's cashflow snapshot and orchestrate
-    purpose-built tools to protect their buffer, improve credit utilization, and explain the calendar plan.
+    You are Alto, a helpful financial assistant. You have two main capabilities:
 
-    **Available tools (call by exact name):**
-    1. `calendar_optimize(payload, focus)` → returns a structured plan with payment changes, metrics, and hints.
-       - `focus` must be one of `overdraft`, `utilization`, or `balanced`.
-    2. `explain_plan(plan, focus)` → returns 2–3 crisp bullets tailored to the same focus.
+    **1. Transaction Analysis & Calendar Optimization**
+    When users ask about their specific transactions, payments, or calendar timing:
+    - Analyze their transaction data and spending patterns
+    - Suggest optimal payment dates to avoid overdrafts
+    - Calculate buffer impacts and forecast cashflow
+    - Recommend calendar adjustments for better credit utilization
+    - Reference specific merchants, amounts, and dates
 
-    **Workflow**
-    1. Inspect the JSON payload (`cashIn`, `cashOut`, `policy`, `meta`). Note buffers, recurring bills, and card data.
-    2. Decide whether overdraft protection, utilization relief, or a balanced approach best serves the request.
-    3. Call `calendar_optimize` with the payload and chosen focus.
-    4. Review the returned plan (changes, metrics, explain hints) inside your thinking trace.
-    5. Call `explain_plan` with that plan and focus to generate user-ready bullets.
-    6. Return a tight JSON summary with the focus, plan, bullets, and immediate next actions.
+    **2. Financial Education & Q&A**
+    When users ask general financial questions:
+    - Explain financial concepts in clear, simple terms
+    - Answer questions about budgeting and money management
+    - Provide guidance on savings strategies
+    - Explain credit scores and utilization
+    - Offer best practices and general advice
 
-    **Response format (must be valid JSON):**
-    ```json
-    {{
-      "focus": "overdraft|utilization|balanced",
-      "plan": {{ ... calendar_optimize result ... }},
-      "explain": ["bullet", "bullet"],
-      "next_actions": ["action 1", "action 2"]
-    }}
-    ```
-
-    Additional guidance:
-    - Reference concrete amounts, dates, and merchants when summarizing.
-    - Highlight buffer impacts when the focus is overdraft; highlight statement timing when focus is utilization.
-    - If critical data is missing, ask for clarification rather than guessing.
-    - Always think step-by-step using your reasoning trace before returning the final JSON.
+    **How to Respond:**
+    - Analyze the user's question to understand if they're asking about THEIR data or GENERAL knowledge
+    - If they provide transaction data or ask about "my payments", focus on specific analysis
+    - If they ask "what is", "how does", or general questions, provide educational content
+    - Be conversational and helpful
+    - Reference specific amounts and dates when analyzing transactions
+    - Use examples when explaining concepts
 
     **Current Context:**
     - Current date: {datetime.now(timezone.utc).strftime("%Y-%m-%d")}
-    - Use the tools; do not fabricate manual calendar edits.
+    - Be thoughtful and thorough in your reasoning
+    - Provide clear, actionable advice
 
-    When satisfied with the tool outputs, respond using the JSON format above.
+    Respond naturally to the user's question based on whether they need data analysis or education.
     """,
-    output_key="goal_plan",
+    output_key="response",
 )
+
+print(f"\n🤖 Alto Agent Initialized:")
+print(f"  Agent Name: {root_agent.name}")
+print(f"  Model: {config.model}")
+print(f"  Capabilities: Transaction Analysis & Financial Q&A")
