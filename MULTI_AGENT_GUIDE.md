@@ -14,10 +14,10 @@ Alto uses the **Coordinator/Dispatcher Pattern** from ADK to intelligently route
            │
            ├─────────────┬──────────────┐
            │             │              │
-      ┌────▼────┐   ┌───▼──────┐      │
-      │Calendar │   │    Q&A    │      │
-      │ Manager │   │Specialist │      │
-      └─────────┘   └───────────┘      │
+      ┌────▼────┐   ┌───▼──────┐        │
+      │Calendar │   │    Q&A    │       │
+      │ Manager │   │Specialist │       │
+      └─────────┘   └───────────┘       │
 ```
 
 ## Agent Hierarchy
