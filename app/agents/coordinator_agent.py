@@ -12,8 +12,6 @@ from app.config import config
 
 def create_coordinator_agent() -> LlmAgent:
     """
-    Create the coordinator agent that routes requests to specialist agents.
-    
     This agent analyzes user intent and delegates to either:
     - calendar_manager: For transaction analysis and calendar optimization
     - qa_specialist: For general financial questions and education

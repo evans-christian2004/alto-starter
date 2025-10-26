@@ -92,11 +92,6 @@ class AgentConfiguration:
 
     @property
     def internal_agent_name(self) -> str:
-        """
-        Convert deployment name to a valid Python identifier.
-
-        Replaces hyphens with underscores and ensures it's a valid identifier.
-        """
         # Convert hyphens to underscores and make it a valid identifier
         name = self.deployment_name.replace("-", "_")
 
@@ -109,7 +104,7 @@ class AgentConfiguration:
 
 @dataclass
 class DeploymentConfiguration:
-    """Configuration needed for deployment to Agent Engine."""
+    """Configuration needed for deployment to Agent Engine. WE AINT DOING THIS RN"""
 
     project: str
     location: str
